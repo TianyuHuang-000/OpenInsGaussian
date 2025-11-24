@@ -10,6 +10,8 @@
 #
 
 import os
+
+import torch.nn as nn
 import torch
 import torch.nn.functional as F
 from random import randint
@@ -42,6 +44,10 @@ try:
     TENSORBOARD_FOUND = True
 except ImportError:
     TENSORBOARD_FOUND = False
+
+import pdb
+from sklearn.cluster import MeanShift
+from collections import Counter
 
 # Randomly initialize 300 colors for visualizing the SAM mask. [OpenGaussian]
 np.random.seed(42)
@@ -371,11 +377,10 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             else:
                 # root_id-th coarse cluster not visible in current view
                 no_need_bk = True
-
         # gt supervision: rgb image & SAM mask
         gt_image = viewpoint_cam.original_image.cuda()
-        if viewpoint_cam.original_sam_mask is not None:
-            gt_sam_mask = viewpoint_cam.original_sam_mask.cuda()    # [4, H, W]
+        gt_sam_mask = viewpoint_cam.original_sam_mask.cuda()    # [4, H, W]
+        
         
         # ##################################################
         # [Stage 0]: 0 to 3w steps, Standard 3DGS RGB loss #
@@ -640,7 +645,10 @@ def construct_pseudo_ins_feat(scene : Scene, renderFunc, renderArgs,
         # get gt sam mask
         mask_id, mask_bool, invalid_pix = \
             get_SAM_mask_and_feat(view.original_sam_mask.cuda(), level=sam_level)
-
+        if mask_bool.shape[0] == 0:
+            continue
+        # pdb
+        # pdb.set_trace()
         # construt pseudo ins_feat, mask levle
         pseudo_mask_ins_feat_, mask_var, pix_count = mask_feature_mean(rendered_ins_feat, mask_bool, return_var=True)   # [num_mask, 6]
         pseudo_mask_ins_feat = torch.cat((torch.zeros((1, 6)).cuda(), pseudo_mask_ins_feat_), dim=0)# [num_mask+1, 6]
@@ -649,6 +657,9 @@ def construct_pseudo_ins_feat(scene : Scene, renderFunc, renderArgs,
         filter_mask = torch.cat((torch.tensor([False]).cuda(), filter_mask), dim=0)  # [num_mask+1]
         # Masks with large pixel ratio may be background points, inevitably leading to a large variance， Keep them.
         ignored_mask_ind = torch.nonzero(pix_count > pix_count.max() * 0.8).squeeze()
+        # pdb.set_trace()
+
+
         filter_mask[ignored_mask_ind + 1] = False
         filtered_mask_pseudo_ins_feat = pseudo_mask_ins_feat.clone()
         filtered_mask_pseudo_ins_feat[filter_mask] *= 0
@@ -873,36 +884,101 @@ def construct_pseudo_ins_feat(scene : Scene, renderFunc, renderArgs,
         torch.cuda.empty_cache()
 
         # count the matches of each leaf (fine-level cluster) across all viewpoints.
-        leaf_per_view_matched_mask = match_info[:, :, 0].to(torch.int64) # [k1*k2, num_cam] matched mask id
+        leaf_per_view_matched_mask = match_info[:, :, 0].to(torch.int64)  # [k1*k2, num_cam] matched mask id
         match_info_sum = match_info.sum(dim=1)  # [k1*k2, (matched_mask_id, matched_score, b_matched)]
-        leaf_ave_score = match_info_sum[:, 1] / (match_info_sum[:, 2]+ 1e-6)    # [k1*k2] ave score
-        leaf_occu_count = match_info_sum[:, 2]          # [k1*k2] number of matches for each leaf
-        
-        # accumulated 2D features of each leaf
-        per_leaf_feat_sum = torch.zeros(root_num * leaf_num, 512).cuda()  # [k1*k2] 
+        leaf_ave_score = match_info_sum[:, 1] / (match_info_sum[:, 2] + 1e-6)  # [k1*k2] ave score
+        leaf_occu_count = match_info_sum[:, 2]  # [k1*k2] number of matches for each leaf
+
+        # Collect per-view features first
+        all_view_feats = []
+        per_leaf_feat_sum = torch.zeros(root_num * leaf_num, view.original_mask_feat.shape[1]).cuda()  # [k1*k2, 512]
         for v_id, view in enumerate(sorted_train_cameras):
             if not view.data_on_gpu:
                 view.to_gpu()
+            
             if sam_level == 0:
                 strat_id = 0
                 end_id = view.original_sam_mask[sam_level].max().to(torch.int64) + 1
             else:
                 strat_id = view.original_sam_mask[sam_level-1].max().to(torch.int64) + 1
                 end_id = view.original_sam_mask[sam_level].max().to(torch.int64) + 1
-            curr_view_lang_feat = view.original_mask_feat[strat_id:end_id, :]   # [num_mask, 512]
-            curr_view_lang_feat = torch.cat((torch.zeros_like(curr_view_lang_feat[0]).unsqueeze(0), \
-                curr_view_lang_feat))   # note: [num_mask+1, 512] add a feature with all 0s, i.e., the feature with id=0.
-            # current feat [k1*k2, 512]
+
+            curr_view_lang_feat = view.original_mask_feat[strat_id:end_id, :]  # [num_mask, 512]
+            curr_view_lang_feat = torch.cat((torch.zeros_like(curr_view_lang_feat[0]).unsqueeze(0), 
+                                            curr_view_lang_feat))  # Add zero feature with id=0.
+
+            # Extract features for current view based on matched mask
             single_view_leaf_feat = curr_view_lang_feat[leaf_per_view_matched_mask[:, v_id]]
-            # accumulate
+            all_view_feats.append(single_view_leaf_feat)
             per_leaf_feat_sum += single_view_leaf_feat
 
             if view.data_on_gpu and save_memory:
                 view.to_cpu()
 
-        # average language features [k1*k2, 512] 
-        per_leaf_feat = per_leaf_feat_sum / (leaf_occu_count + 1e-4).unsqueeze(1)
+        # Perform mean calculation and attention-weighted aggregation
+        all_view_feats = torch.stack(all_view_feats, dim=1)  # [k1*k2, num_cam, 512]
 
+        save_path = os.path.join(scene.model_path, "train_process", "stage3", "all_view_feats.pth")
+        torch.save(all_view_feats, save_path)
+        print(f"Tensor saved at: {save_path}")
+
+        
+        per_leaf_feat_mean = per_leaf_feat_sum / (leaf_occu_count + 1e-4).unsqueeze(1)
+
+        # Step 1: Create a mask for non-zero features
+        non_zero_mask = (all_view_feats.sum(dim=-1) != 0).float()  # [k1*k2, num_cam]
+
+        # Step 2: Compute similarity (cosine similarity or dot product)
+        # Expand mean feature to match all_view_feats shape
+        expanded_mean_feats = per_leaf_feat_mean.unsqueeze(1)  # [k1*k2, 1, 512]
+
+        # Use cosine similarity or dot product
+        similarity_scores = F.cosine_similarity(all_view_feats, expanded_mean_feats, dim=-1)  # [k1*k2, num_cam]
+
+        # Step 3: Mask the similarities to ignore zero features
+        masked_similarity = similarity_scores * non_zero_mask
+
+        # Step 4: Apply softmax along the view dimension (num_cam)
+        softmax_weights = F.softmax((masked_similarity), dim=1)  # [k1*k2, num_cam]
+
+        # Step 5: Apply the weights and compute the weighted sum
+        per_leaf_feat = (all_view_feats * softmax_weights.unsqueeze(-1)).sum(dim=1)  # [k1*k2, 512]
+        
+        weighted_sum_feats = per_leaf_feat_mean.clone()
+        iter_num = 5
+        while iter_num > 0:
+            # Loop through each leaf node
+            for i in range(all_view_feats.shape[0]):  # k1*k2
+                leaf_feats = all_view_feats[i]  # [num_cam, 512]
+                mean_feat = weighted_sum_feats[i].unsqueeze(0)  # [1, 512]
+                
+                # Find non-zero features
+                non_zero_mask = (leaf_feats.sum(dim=-1) != 0).float()  # [num_cam]
+                
+                # If there are no non-zero features, skip
+                if non_zero_mask.sum() == 0:
+                    continue
+                
+                # Filter out zero features
+                valid_feats = leaf_feats[non_zero_mask.bool()]  # [valid_num_cam, 512]
+                
+                # Compute cosine similarity
+                similarity_scores = F.cosine_similarity(valid_feats, mean_feat, dim=-1)  # [valid_num_cam]
+                
+                # Apply softmax to similarities
+                softmax_weights = F.softmax(similarity_scores, dim=0)  # [valid_num_cam]
+                
+                # Compute the weighted sum
+                weighted_sum = (valid_feats * softmax_weights.unsqueeze(-1)).sum(dim=0)  # [512]
+                
+                # Store the result
+                weighted_sum_feats[i] = weighted_sum
+                # pdb.set_trace()
+            per_leaf_feat_mean = weighted_sum_feats
+            iter_num -= 1
+
+        per_leaf_feat = weighted_sum_feats
+        
         # save per_leaf_feat[k1*k2, 512], leaf_ave_score[k1*k2], leaf_occu_count[k1*k2], cluster_indices[num_pts]
         np.savez(f'{scene.model_path}/cluster_lang.npz',leaf_feat=per_leaf_feat.cpu().numpy(), \
                                     leaf_score=leaf_ave_score.cpu().numpy(), \
