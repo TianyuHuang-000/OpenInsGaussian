@@ -1,5 +1,5 @@
-# OpenInsGaussian: Open-Vocabulary 3D Instance Segmentation with Gaussian Splatting  
-### ICCV Findings 2025
+# OpenInsGaussian: Open-vocabulary Instance Gaussian Segmentation with Context-aware Cross-view Fusion  
+### ICCV 2025 Findings 
 
 <h3>
   <strong>Paper(<a href="https://www.arxiv.org/abs/2510.18253">arXiv</a> / <a href="https://openaccess.thecvf.com/content/ICCV2025W/Findings/papers/Huang_OpenInsGaussian_Open-vocabulary_Instance_Gaussian_Segmentation_with_Context-aware_Cross-view_Fusion_ICCVW_2025_paper.pdf">Conference</a>)</strong> 
