@@ -66,10 +66,11 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
     leaf_num = leaf_lang_feat.shape[0] / root_num
 
     # text feature
-    with open('assets/text_features.json', 'r') as f:
+    with open('assets/text_features_oig.json', 'r') as f:
         data_loaded = json.load(f)
     all_texts = list(data_loaded.keys())
     text_features = torch.from_numpy(np.array(list(data_loaded.values()))).to(torch.float32)  # [num_text, 512]
+    print(text_features.shape)
 
     scene_texts = {
         "waldo_kitchen": ['Stainless steel pots', 'dark cup', 'refrigerator', 'frog cup', 'pot', 'spatula', 'plate', \
@@ -88,7 +89,7 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
     # note: query text
     target_text = scene_texts[scene_name]
 
-    query_text_feats = torch.zeros(len(target_text), 512).cuda()
+    query_text_feats = torch.zeros(len(target_text), 640).cuda()
     for i, text in enumerate(target_text):
         feat = text_features[all_texts.index(text)].unsqueeze(0)
         query_text_feats[i] = feat

@@ -8,11 +8,11 @@
 # 3. Please check the dataset path specified by -s.
 
 # ============== [Hyperparameter explanation] ==============
-# Total training steps: 90k
-# 3dgs pre-train: 0~30k
-# stage1: 30~50k
-# stage2 (coarse-level): 50~70k
-# stage2 (fine-level): 70k~90k
+# Total training steps: 9w
+# 3dgs pre-train: 0~3w
+# stage1: 3~5w
+# stage2 (coarse-level): 5~7w
+# stage2 (fine-level): 7~9w
 # k1=64, k2=5
 # frozen_init_pts: The point clouds provided by the ScanNet dataset are frozen, without using the densification scheme of 3DGS.
 # -r 2 : We use half-resolution data for training.
@@ -20,15 +20,26 @@
 # ============== [10 scenes] ==============
 scan_list=("scene0000_00" "scene0062_00" "scene0070_00" "scene0097_00" "scene0140_00" \
 "scene0200_00" "scene0347_00" "scene0400_00" "scene0590_00" "scene0645_00")
+# scan_list=("scene0000_00")
+gpu_num=0
 
-gpu_num=3     # change!
 for scan in "${scan_list[@]}"; do
     echo "Training for ${scan} ....."
-    CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
-        -s /gdata/cold1/wuyanmin/OpenGaussian/data/onedrive/scannet/${scan} \
+    log_dir="./logs/${scan}"
+    mkdir -p "$log_dir"
+
+    echo "Starting training for $scan..." | tee "$log_dir/train.log"
+
+    # Record memory usage every 5s in background
+    nvidia-smi --query-gpu=timestamp,index,name,memory.used --format=csv -l 5 > "$log_dir/mem.log" &
+    mem_logger_pid=$!
+
+    # Record time and stdout+stderr
+    { time CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
+        -s "/home/tianyu/Documents/GitHub/OpenInsGaussian/data/rerun/scannet/${scan}" \
         -r 2 \
         --frozen_init_pts \
-        --iterations 90_000 \
+        --iterations 90_001 \
         --start_ins_feat_iter 30_000 \
         --start_root_cb_iter 50_000 \
         --start_leaf_cb_iter 70_000 \
@@ -37,5 +48,11 @@ for scan in "${scan_list[@]}"; do
         --leaf_node_num 5 \
         --pos_weight 1.0 \
         --test_iterations 30000 \
-        --eval
+        --eval \
+        --model_path "/home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/scannet/${scan}" \
+        --start_checkpoint /media/tianyu/hard_drive/output/OpenGaussian/scannet_ori_ori/${scan}/chkpnt90000.pth ; } \
+        2>&1 | tee -a "$log_dir/train.log"
+
+    # Stop memory logger
+    kill $mem_logger_pid
 done

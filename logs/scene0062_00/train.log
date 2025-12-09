@@ -1,0 +1,43 @@
+Starting training for scene0062_00...
+Optimizing /home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/scannet/scene0062_00
+Output folder: /home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/scannet/scene0062_00 [08/12 17:04:53]
+Tensorboard not available: not logging progress [08/12 17:04:53]
+Found transforms_train.json file, assuming Blender data set! [08/12 17:04:53]
+Reading Training Transforms [08/12 17:04:53]
+load images:   0%|          | 0/37 [00:00<?, ?it/s]load images:   5%|▌         | 2/37 [00:00<00:02, 15.23it/s]load images:  11%|█         | 4/37 [00:00<00:02, 16.24it/s]load images:  16%|█▌        | 6/37 [00:00<00:01, 16.94it/s]load images:  22%|██▏       | 8/37 [00:00<00:01, 17.52it/s]load images:  27%|██▋       | 10/37 [00:00<00:01, 17.74it/s]load images:  32%|███▏      | 12/37 [00:00<00:01, 17.86it/s]load images:  38%|███▊      | 14/37 [00:00<00:01, 17.84it/s]load images:  43%|████▎     | 16/37 [00:00<00:01, 17.80it/s]load images:  49%|████▊     | 18/37 [00:01<00:01, 17.71it/s]load images:  54%|█████▍    | 20/37 [00:01<00:00, 17.68it/s]load images:  59%|█████▉    | 22/37 [00:01<00:00, 17.64it/s]load images:  65%|██████▍   | 24/37 [00:01<00:00, 17.72it/s]load images:  70%|███████   | 26/37 [00:01<00:00, 18.04it/s]load images:  76%|███████▌  | 28/37 [00:01<00:00, 18.17it/s]load images:  81%|████████  | 30/37 [00:01<00:00, 18.19it/s]load images:  86%|████████▋ | 32/37 [00:01<00:00, 17.81it/s]load images:  92%|█████████▏| 34/37 [00:01<00:00, 17.73it/s]load images:  97%|█████████▋| 36/37 [00:02<00:00, 17.78it/s]load images: 100%|██████████| 37/37 [00:02<00:00, 17.67it/s]
+Reading Test Transforms [08/12 17:04:55]
+load images:   0%|          | 0/37 [00:00<?, ?it/s]load images:   8%|▊         | 3/37 [00:00<00:01, 24.44it/s]load images:  16%|█▌        | 6/37 [00:00<00:01, 24.46it/s]load images:  24%|██▍       | 9/37 [00:00<00:01, 24.22it/s]load images:  32%|███▏      | 12/37 [00:00<00:01, 24.59it/s]load images:  41%|████      | 15/37 [00:00<00:00, 24.46it/s]load images:  49%|████▊     | 18/37 [00:00<00:00, 24.62it/s]load images:  57%|█████▋    | 21/37 [00:00<00:00, 24.42it/s]load images:  65%|██████▍   | 24/37 [00:00<00:00, 24.38it/s]load images:  73%|███████▎  | 27/37 [00:01<00:00, 24.51it/s]load images:  81%|████████  | 30/37 [00:01<00:00, 24.52it/s]load images:  89%|████████▉ | 33/37 [00:01<00:00, 24.49it/s]load images:  97%|█████████▋| 36/37 [00:01<00:00, 24.29it/s]load images: 100%|██████████| 37/37 [00:01<00:00, 24.42it/s]
+Resolution:  1.0 [08/12 17:04:57]
+Loading Training Cameras [08/12 17:04:57]
+Loading Test Cameras [08/12 17:04:58]
+Number of points at initialisation :  51610 [08/12 17:04:58]
+Training progress:   0%|          | 0/1 [00:00<?, ?it/s]
+construt pseudo feat:   0%|          | 0/37 [00:00<?, ?it/s][A
+construt pseudo feat:   3%|▎         | 1/37 [00:00<00:04,  7.94it/s][A
+construt pseudo feat:  57%|█████▋    | 21/37 [00:00<00:00, 78.03it/s][Aconstrut pseudo feat: 100%|██████████| 37/37 [00:00<00:00, 101.10it/s]
+
+render coarse-level cluster:   0%|          | 0/37 [00:00<?, ?it/s][A
+render coarse-level cluster:  14%|█▎        | 5/37 [00:00<00:00, 45.57it/s][A
+render coarse-level cluster:  27%|██▋       | 10/37 [00:00<00:00, 46.82it/s][A
+render coarse-level cluster:  41%|████      | 15/37 [00:00<00:00, 44.63it/s][A
+render coarse-level cluster:  54%|█████▍    | 20/37 [00:00<00:00, 45.49it/s][A
+render coarse-level cluster:  68%|██████▊   | 25/37 [00:00<00:00, 45.81it/s][A
+render coarse-level cluster:  81%|████████  | 30/37 [00:00<00:00, 45.85it/s][A
+render coarse-level cluster:  95%|█████████▍| 35/37 [00:00<00:00, 46.32it/s][Arender coarse-level cluster: 100%|██████████| 37/37 [00:00<00:00, 46.17it/s]
+Training progress:   0%|          | 0/1 [00:01<?, ?it/s]
+[ITER 90001] Saving Gaussians [08/12 17:05:10]
+
+[ITER 90001] Saving Checkpoint [08/12 17:05:10]
+[Stage 3] Start 2D language feature - 3D cluster association ... [08/12 17:05:10]
+
+train.py:89: DeprecationWarning: In future, it will be an error for 'np.bool_' scalars to be interpreted as an index
+  bitarr = bitarray(list(assignments.cpu().numpy().flatten()))
+construt pseudo feat:   0%|          | 0/37 [00:00<?, ?it/s]construt pseudo feat:   3%|▎         | 1/37 [00:00<00:04,  8.24it/s]construt pseudo feat:  57%|█████▋    | 21/37 [00:00<00:00, 80.31it/s]construt pseudo feat: 100%|██████████| 37/37 [00:00<00:00, 104.10it/s]
+mapping:   0%|          | 0/64 [00:00<?, ?it/s]mapping:   3%|▎         | 2/64 [00:00<00:03, 17.09it/s]mapping:   6%|▋         | 4/64 [00:00<00:03, 18.40it/s]mapping:   9%|▉         | 6/64 [00:00<00:03, 16.90it/s]mapping:  12%|█▎        | 8/64 [00:00<00:03, 17.47it/s]mapping:  16%|█▌        | 10/64 [00:00<00:03, 15.60it/s]mapping:  19%|█▉        | 12/64 [00:00<00:03, 16.57it/s]mapping:  22%|██▏       | 14/64 [00:00<00:02, 17.07it/s]mapping:  25%|██▌       | 16/64 [00:00<00:02, 16.72it/s]mapping:  28%|██▊       | 18/64 [00:01<00:02, 16.58it/s]mapping:  31%|███▏      | 20/64 [00:01<00:02, 16.97it/s]mapping:  34%|███▍      | 22/64 [00:01<00:02, 17.36it/s]mapping:  38%|███▊      | 24/64 [00:01<00:02, 17.32it/s]mapping:  41%|████      | 26/64 [00:01<00:02, 17.86it/s]mapping:  44%|████▍     | 28/64 [00:01<00:02, 17.21it/s]mapping:  47%|████▋     | 30/64 [00:01<00:01, 17.09it/s]mapping:  50%|█████     | 32/64 [00:01<00:01, 16.89it/s]mapping:  53%|█████▎    | 34/64 [00:02<00:01, 16.52it/s]mapping:  56%|█████▋    | 36/64 [00:02<00:01, 16.98it/s]mapping:  59%|█████▉    | 38/64 [00:02<00:01, 16.17it/s]mapping:  62%|██████▎   | 40/64 [00:02<00:01, 15.65it/s]mapping:  66%|██████▌   | 42/64 [00:02<00:01, 15.68it/s]mapping:  70%|███████   | 45/64 [00:02<00:01, 17.05it/s]mapping:  73%|███████▎  | 47/64 [00:02<00:00, 17.29it/s]mapping:  77%|███████▋  | 49/64 [00:02<00:00, 16.96it/s]mapping:  80%|███████▉  | 51/64 [00:03<00:00, 14.95it/s]mapping:  83%|████████▎ | 53/64 [00:03<00:00, 15.19it/s]mapping:  86%|████████▌ | 55/64 [00:03<00:00, 15.98it/s]mapping:  89%|████████▉ | 57/64 [00:03<00:00, 15.76it/s]mapping:  92%|█████████▏| 59/64 [00:03<00:00, 15.73it/s]mapping:  95%|█████████▌| 61/64 [00:03<00:00, 15.57it/s]mapping:  98%|█████████▊| 63/64 [00:03<00:00, 16.03it/s]mapping: 100%|██████████| 64/64 [00:03<00:00, 16.47it/s]
+Tensor saved at: /home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/scannet/scene0062_00/train_process/stage3/all_view_feats.pth [08/12 17:05:15]
+
+Training complete. [08/12 17:05:15]
+
+real	0m22.380s
+user	0m20.850s
+sys	0m4.254s

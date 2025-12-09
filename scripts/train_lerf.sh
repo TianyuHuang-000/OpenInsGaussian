@@ -10,20 +10,20 @@
 # stage2 (coarse-level): 40~50k
 # stage2 (fine-level): 50k~70k
 
-# ###############################################
-# #              (1/4) figurines
-# # Training takes approximately 70 minutes on a 24G 4090 GPU.
-# # The object selection effect is better (recommended), the point cloud visualization is poor (not recommended).
-# # k1=64, k2=10
-# # --pos_weight 0.5
-# # --save_memory: Saves memory, but will reduce training speed. If your GPU memory > 24GB, you can omit this flag
-# ###############################################
+###############################################
+#              (1/4) figurines
+# Training takes approximately 70 minutes on a 24G 4090 GPU.
+# The object selection effect is better (recommended), the point cloud visualization is poor (not recommended).
+# k1=64, k2=10
+# --pos_weight 0.5
+# --save_memory: Saves memory, but will reduce training speed. If your GPU memory > 24GB, you can omit this flag
+###############################################
 scan="figurines"
-gpu_num=3           # change
+gpu_num=0           # change
 echo "Training for ${scan} ....."
 CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
-    -s /gdata/cold1/wuyanmin/OpenGaussian/data/lerf_ovs/${scan} \
-    --iterations 70_000 \
+    -s "/home/tianyu/Documents/GitHub/OpenInsGaussian/data/rerun/lerf/${scan}" \
+    --iterations 70_001 \
     --start_ins_feat_iter 30_000 \
     --start_root_cb_iter 40_000 \
     --start_leaf_cb_iter 50_000 \
@@ -33,8 +33,9 @@ CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
     --pos_weight 0.5 \
     --save_memory \
     --test_iterations 30000 \
-    --eval
-
+    --eval \
+    --model_path "/home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/lerf/${scan}" \
+    --start_checkpoint /media/tianyu/hard_drive/output/OpenGaussian/lerf_ori_ori/${scan}/chkpnt70000.pth
 
 # ###############################################
 # #              (2/4) waldo_kitchen
@@ -45,11 +46,11 @@ CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
 # # No need to set save_memory, 24G is sufficient.
 # ###############################################
 scan="waldo_kitchen"
-gpu_num=3           # change
+gpu_num=0           # change
 echo "Training for ${scan} ....."
 CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
-    -s /gdata/cold1/wuyanmin/OpenGaussian/data/lerf_ovs/${scan} \
-    --iterations 70_000 \
+    -s "/home/tianyu/Documents/GitHub/OpenInsGaussian/data/rerun/lerf/${scan}" \
+    --iterations 70_001 \
     --start_ins_feat_iter 30_000 \
     --start_root_cb_iter 40_000 \
     --start_leaf_cb_iter 50_000 \
@@ -58,8 +59,10 @@ CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
     --leaf_node_num 10 \
     --pos_weight 0.5 \
     --test_iterations 30000 \
-    --eval
-
+    --save_memory \
+    --eval \
+    --model_path "/home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/lerf/${scan}" \
+    --start_checkpoint /media/tianyu/hard_drive/output/OpenGaussian/lerf_ori_ori/${scan}/chkpnt70000.pth
 
 # ###############################################
 # #              (3/4) teatime
@@ -69,11 +72,11 @@ CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
 # # --save_memory: Saves memory, but will reduce training speed. If your GPU memory > 24GB, you can omit this flag
 # ###############################################
 scan="teatime"
-gpu_num=3       # change
+gpu_num=0       # change
 echo "Training for ${scan} ....."
 CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
-    -s /gdata/cold1/wuyanmin/OpenGaussian/data/lerf_ovs/${scan} \
-    --iterations 70_000 \
+    -s "/home/tianyu/Documents/GitHub/OpenInsGaussian/data/rerun/lerf/${scan}" \
+    --iterations 70_001 \
     --start_ins_feat_iter 30_000 \
     --start_root_cb_iter 40_000 \
     --start_leaf_cb_iter 50_000 \
@@ -83,24 +86,25 @@ CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
     --pos_weight 0.1 \
     --save_memory \
     --test_iterations 30000 \
-    --eval
+    --eval \
+    --model_path "/home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/lerf/${scan}" \
+    --start_checkpoint /media/tianyu/hard_drive/output/OpenGaussian/lerf_ori_ori/${scan}/chkpnt70000.pth
 
-
-# ###############################################
-# #              (4/4) ramen
-# # Training takes approximately 40 minutes on a 24G 4090 GPU.
-# # The object selection effect is the worst and unstable (not recommended).
-# # k1=64, k2=10
-# # --pos_weight 0.5
-# # --loss_weight 0.01: the weight of intra-mask smooth loss. 0.1 is used for the other scenes.
-# # No need to set save_memory, 24G is sufficient.
-# ###############################################
+###############################################
+#              (4/4) ramen
+# Training takes approximately 40 minutes on a 24G 4090 GPU.
+# The object selection effect is the worst and unstable (not recommended).
+# k1=64, k2=10
+# --pos_weight 0.5
+# --loss_weight 0.01: the weight of intra-mask smooth loss. 0.1 is used for the other scenes.
+# No need to set save_memory, 24G is sufficient.
+###############################################
 scan="ramen"
-gpu_num=3
+gpu_num=0
 echo "Training for ${scan} ....."
 CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
-    -s /gdata/cold1/wuyanmin/OpenGaussian/data/lerf_ovs/${scan} \
-    --iterations 70_000 \
+    -s "/home/tianyu/Documents/GitHub/OpenInsGaussian/data/rerun/lerf/${scan}" \
+    --iterations 70_001 \
     --start_ins_feat_iter 30_000 \
     --start_root_cb_iter 40_000 \
     --start_leaf_cb_iter 50_000 \
@@ -110,4 +114,6 @@ CUDA_VISIBLE_DEVICES=$gpu_num python train.py --port 601$gpu_num \
     --pos_weight 0.5 \
     --loss_weight 0.01 \
     --test_iterations 30000 \
-    --eval
+    --eval \
+    --model_path "/home/tianyu/Documents/GitHub/OpenInsGaussian/output/rerun/lerf/${scan}" \
+    --start_checkpoint /media/tianyu/hard_drive/output/OpenGaussian/lerf_ori_ori/${scan}/chkpnt70000.pth

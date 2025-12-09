@@ -945,38 +945,34 @@ def construct_pseudo_ins_feat(scene : Scene, renderFunc, renderArgs,
         per_leaf_feat = (all_view_feats * softmax_weights.unsqueeze(-1)).sum(dim=1)  # [k1*k2, 512]
         
         weighted_sum_feats = per_leaf_feat_mean.clone()
-        iter_num = 5
-        while iter_num > 0:
-            # Loop through each leaf node
-            for i in range(all_view_feats.shape[0]):  # k1*k2
-                leaf_feats = all_view_feats[i]  # [num_cam, 512]
-                mean_feat = weighted_sum_feats[i].unsqueeze(0)  # [1, 512]
-                
-                # Find non-zero features
-                non_zero_mask = (leaf_feats.sum(dim=-1) != 0).float()  # [num_cam]
-                
-                # If there are no non-zero features, skip
-                if non_zero_mask.sum() == 0:
-                    continue
-                
-                # Filter out zero features
-                valid_feats = leaf_feats[non_zero_mask.bool()]  # [valid_num_cam, 512]
-                
-                # Compute cosine similarity
-                similarity_scores = F.cosine_similarity(valid_feats, mean_feat, dim=-1)  # [valid_num_cam]
-                
-                # Apply softmax to similarities
-                softmax_weights = F.softmax(similarity_scores, dim=0)  # [valid_num_cam]
-                
-                # Compute the weighted sum
-                weighted_sum = (valid_feats * softmax_weights.unsqueeze(-1)).sum(dim=0)  # [512]
-                
-                # Store the result
-                weighted_sum_feats[i] = weighted_sum
-                # pdb.set_trace()
-            per_leaf_feat_mean = weighted_sum_feats
-            iter_num -= 1
-
+        
+        for i in range(all_view_feats.shape[0]):  # k1*k2
+            leaf_feats = all_view_feats[i]  # [num_cam, 512]
+            mean_feat = weighted_sum_feats[i].unsqueeze(0)  # [1, 512]
+            
+            # Find non-zero features
+            non_zero_mask = (leaf_feats.sum(dim=-1) != 0).float()  # [num_cam]
+            
+            # If there are no non-zero features, skip
+            if non_zero_mask.sum() == 0:
+                continue
+            
+            # Filter out zero features
+            valid_feats = leaf_feats[non_zero_mask.bool()]  # [valid_num_cam, 512]
+            
+            # Compute cosine similarity
+            similarity_scores = F.cosine_similarity(valid_feats, mean_feat, dim=-1)  # [valid_num_cam]
+            
+            # Apply softmax to similarities
+            softmax_weights = F.softmax(similarity_scores, dim=0)  # [valid_num_cam]
+            
+            # Compute the weighted sum
+            weighted_sum = (valid_feats * softmax_weights.unsqueeze(-1)).sum(dim=0)  # [512]
+            
+            # Store the result
+            weighted_sum_feats[i] = weighted_sum
+            # pdb.set_trace()
+        # per_leaf_feat_mean = weighted_sum_feats
         per_leaf_feat = weighted_sum_feats
         
         # save per_leaf_feat[k1*k2, 512], leaf_ave_score[k1*k2], leaf_occu_count[k1*k2], cluster_indices[num_pts]
