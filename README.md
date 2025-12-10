@@ -132,7 +132,7 @@ chmod +x scripts/train_custom.sh
 
 - Modify paths in the script before running.
 
-## 4. Rendering, Evaluation, and Downstream Tasks
+## 4. Rendering and Evaluation
 
 ### 4.1 Rendering 2D Feature Maps
 
